@@ -3,27 +3,150 @@
 
 <head>
     <meta charset="utf8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <title>SECRET WEB</title>
+    <style>
+        #title,
+        #content {
+            display: block;
+            border: 0px solid #fff;
+            min-width: 200px;
+            width: 30%;
+            box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            margin-bottom: 30px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        #title {
+            height: 30px;
+        }
+
+        #content {
+            height: 50px;
+        }
+
+        #writeBtn {
+            border: 0px solid #fff;
+            min-width: 200px;
+            width: 30%;
+            border-radius: 10px;
+            color: #636e72;
+            font-size: 0.9em;
+            height: 30px;
+            background-color: #dfe6e9;
+            box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            margin-bottom: 30px;
+        }
+
+        #writeBtn:hover {
+            cursor: pointer;
+        }
+
+        .bccc {
+            box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            min-width: 200px;
+            width: 30%;
+            padding: 30px;
+        }
+
+        .bct,
+        .bcc {
+            font-size: 0.9em;
+        }
+
+        .bct {
+            padding-bottom: 10px;
+            ;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #636e72;
+        }
+    </style>
 </head>
 
 <body>
     <div class="bc">
+        <div class="notice-box">
+            <h1>DON'T TELL ANYONE ABOUT THIS SITE</h1>
+            <p>1주일이 지난 게시글은 자동으로 삭제됩니다.</p>
+        </div>
         <div class="bf">
             <h1>W R I T E</h1>
             <input type="text" id="title" maxlength="255" />
             <textarea id="content" maxlength="2000"></textarea>
+            <button type="button" id="writeBtn">SUBMIT</button>
         </div>
         <hr />
         <div class="b">
-            <div class="bc">
-                <div class="bct"></div>
-                <hr />
-                <div class="bcc"></div>
-            </div>
         </div>
     </div>
     <script>
+        let latestData = null;
 
+        setInterval(() => refresh(), 1000);
+        const refresh = () => {
+            fetch('/board/get_board')
+                .then(response => response.json())
+                .then(rst => {
+                    const data = rst.data;
+
+                    if (data.length <= 0) {
+                        return;
+                    } else if (latestData && latestData[0].date === data[0].date) {
+                        return;
+                    }
+
+                    latestData = data;
+                    const board = document.querySelector(".b");
+                    board.innerHTML = '';
+
+                    data.map((d) => {
+
+                        const card = document.createElement("div");
+                        card.className = "bccc";
+                        const title = document.createElement("div");
+                        const content = document.createElement("div");
+                        title.className = "bct";
+                        content.className = "bcc";
+                        title.innerText = `${d.title} - ${d.date}`;
+                        content.innerText = d.content;
+                        card.appendChild(title);
+                        card.appendChild(content);
+                        board.appendChild(card);
+                    });
+                });
+        };
+
+        const submitPost = () => {
+            const title = document.getElementById("title").value.trim();
+            const content = document.getElementById("content").value.trim();
+
+            if (title === '' || content === '') {
+                alert('Empty title or content');
+                return;
+            }
+
+            document.getElementById("title").value = '';
+            document.getElementById("content").value = '';
+
+            const params = new FormData();
+            params.append('title', title);
+            params.append('content', content);
+
+
+            fetch('/board/create_board', {
+                method: 'POST',
+                body: params,
+            }).then(() => refresh());
+        }
+
+        window.onload = () => {
+            refresh();
+
+            document.getElementById("writeBtn").addEventListener('click', () => {
+                submitPost();
+            });
+        };
     </script>
 </body>
 
