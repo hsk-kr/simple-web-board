@@ -16,7 +16,6 @@ class BoardForm(forms.Form):
 
 @csrf_exempt
 def create_board(request):
-    print(request.POST)
     f = BoardForm(request.POST)
     if not f.is_valid():
         return HttpResponseBadRequest()
