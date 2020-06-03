@@ -48,6 +48,7 @@
             min-width: 200px;
             width: 30%;
             padding: 30px;
+            margin-bottom: 25px;
         }
 
         .bct,
@@ -60,6 +61,10 @@
             ;
             margin-bottom: 10px;
             border-bottom: 1px solid #636e72;
+        }
+
+        .b {
+            margin-bottom: 50px;
         }
     </style>
 </head>
@@ -84,6 +89,7 @@
         let latestData = null;
 
         setInterval(() => refresh(), 1000);
+
         const refresh = () => {
             fetch('/board/get_board')
                 .then(response => response.json())
